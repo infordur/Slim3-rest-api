@@ -20,10 +20,29 @@ $container['logger'] = function ($c) {
 
 // Database connection
 $container['db'] = function ($c) {
-    $settings = $c->get('settings')['db'];
-    $pdo = new PDO("mysql:host=" . $settings['host'] . ";dbname=" . $settings['dbname'] . ";port=" . $settings['port'] . ";charset=" . $settings['charset'],
-        $settings['user'], $settings['pass']);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-    return $pdo;
+    try {
+        $settings = $c->get('settings')['db'];
+        $pdo = new PDO("mysql:host=" . $settings['host'] . ";dbname=" . $settings['dbname'] . ";port=" . $settings['port'] . ";charset=" . $settings['charset'],
+            $settings['user'], $settings['pass']);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        return $pdo;
+    } catch (PDOException $e) {
+        return 'Connection failed: ' . $e->getMessage();
+    }
+   
+};
+
+
+
+//Task
+$container['App\Action\TaskAction'] = function ($c) {
+    $taskResource = new \App\Resource\TaskResource($c->get('db'));
+    return new App\Action\TaskAction($taskResource);
+};
+
+//Categories
+$container['App\Action\CategoryAction'] = function ($c) {
+    $categoryResource = new \App\Resource\CategoryResource($c->get('db'));
+    return new App\Action\CategoryAction($categoryResource);
 };
